@@ -28,12 +28,13 @@ class LoRALayer(nn.Module):
     self.alpha = alpha
     self.r = r
 
+    # weights
     self.w_a = nn.Linear(in_dim, r, bias=False)
     self.w_b = nn.Linear(r, out_dim, bias=False)
 
     # init w_a with kaiming distribution
     # init w_b with zeros
-    # lora starts at identity with this
+    # LoRA starts at identity with this initial parameters
     nn.init.kaiming_uniform_(self.w_a.weight, a=np.sqrt(5))
     nn.init.zeros_(self.w_b.weight)
 
@@ -160,7 +161,8 @@ class IdentifyCard:
   def rerank_with_clip(self, query_array, type, card_names):
     clip_model, clip_preprocess = clip.load("ViT-B/32")
     clip_model.to(self.device)
-    # Embed query
+    
+    # query embeddings
     query_image = Image.fromarray(query_array)
     query_tensor = clip_preprocess(query_image).unsqueeze(0).to(self.device)
     with torch.no_grad():
@@ -172,7 +174,7 @@ class IdentifyCard:
       img = Image.open(dir_path + '/card_data/{}-cards/{}'.format(type, card_name))
       card_images.append(img)
     
-    # Embed candidates
+    # top 50 embeddings
     scores = []
     for card_img in card_images:
         card_tensor = clip_preprocess(card_img).unsqueeze(0).to(self.device)
@@ -207,7 +209,7 @@ class IdentifyCard:
     fig, axes = plt.subplots(1, 6, figsize=(15, 3.2))
     fig.patch.set_facecolor('#0c1117')
     
-    # Query
+    # query
     axes[0].imshow(art_array)
     axes[0].set_title('Query', color='#e2e8f0', fontsize=11, pad=8, fontweight='bold')
     axes[0].axis('off')
@@ -215,7 +217,7 @@ class IdentifyCard:
         spine.set_edgecolor('#38bdf8')
         spine.set_linewidth(2)
     
-    # Candidates
+    # results
     bar_colors = ['#22c55e', '#84cc16', '#eab308', '#f97316', '#ef4444']
     for i, card in enumerate(results_list):
       ax = axes[i+1]
