@@ -225,7 +225,7 @@ class IdentifyCard:
       ax.imshow(img_arr)
       ax.set_title(
           f"{card['name']}\n{card['score']:.3f}",
-          color=bar_colors[i], fontsize=11, pad=6
+          color=bar_colors[i], fontsize=9, pad=6
       )
       ax.axis('off')
   
