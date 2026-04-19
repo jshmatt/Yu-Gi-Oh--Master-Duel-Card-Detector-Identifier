@@ -1,0 +1,259 @@
+<script>
+
+let selectedFile   = null;   // fil object from image upload
+let detectedObjs   = [];     // results returned by detect
+let selectedObjIdx = null;   // index of chosen card
+let cropperInst    = null;   // Cropper.js instance (destroy on stage leave)
+
+// navigation
+const STAGES  = ['upload', 'choose', 'crop', 'results'];
+const BC_IDS  = { upload:'bc-upload', choose:'bc-choose', crop:'bc-crop', results:'bc-results' };
+
+function goTo(stageName) {
+  STAGES.forEach(s => {
+    document.getElementById('stage-' + s).classList.toggle('active', s === stageName);
+
+    const bc     = document.getElementById(BC_IDS[s]);
+    const myIdx  = STAGES.indexOf(s);
+    const curIdx = STAGES.indexOf(stageName);
+    bc.classList.remove('active', 'done');
+    if      (myIdx === curIdx) bc.classList.add('active');
+    else if (myIdx  < curIdx) bc.classList.add('done');
+  });
+
+  // destroy cropper when leaving cropping page
+  if (stageName !== 'crop' && cropperInst) {
+    cropperInst.destroy();
+    cropperInst = null;
+  }
+}
+
+// helper functions
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent  = '⚠ ' + msg;
+  el.style.display = 'block';
+}
+
+function hideError(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function setLoading(btn, loading, label = null) {
+  if (loading) {
+    btn.disabled = true;
+    btn.dataset.origText = btn.innerHTML;
+    btn.innerHTML = `<span class="spinner"></span> ${label || 'Working…'}`;
+  } else {
+    btn.disabled  = false;
+    btn.innerHTML = btn.dataset.origText || btn.innerHTML;
+  }
+}
+
+
+// page 1: upload
+const uploadZone = document.getElementById('upload-zone');
+const fileInput  = document.getElementById('file-input');
+const detectBtn  = document.getElementById('detect-btn');
+
+function handleFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  selectedFile = file;
+  hideError('upload-error');
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('preview-img').src = e.target.result;
+    document.getElementById('preview-name').textContent =
+      `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+    document.getElementById('preview-wrap').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+  detectBtn.disabled = false;
+}
+
+fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', ()  => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('drag-over');
+  handleFile(e.dataTransfer.files[0]);
+});
+
+detectBtn.addEventListener('click', async () => {
+  if (!selectedFile) return;
+  setLoading(detectBtn, true, 'Detecting…');
+  hideError('upload-error');
+
+  const fd = new FormData();
+  fd.append('image', selectedFile);
+
+  try {
+    const res  = await fetch('/detect', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Detection failed');
+
+    detectedObjs = data.objects;
+    if (!detectedObjs.length) throw new Error('No cards detected in image.');
+
+    renderObjects();
+    goTo('choose');
+  } catch (err) {
+    showError('upload-error', err.message);
+  } finally {
+    setLoading(detectBtn, false);
+  }
+});
+
+// page 2: select card
+function renderObjects() {
+  const grid = document.getElementById('objects-grid');
+  grid.innerHTML = '';
+
+  detectedObjs.forEach((obj, idx) => {
+    const card = document.createElement('div');
+    card.className = 'obj-card';
+    card.innerHTML = `
+      <img src="data:image/png;base64,${obj.image_b64}" alt="Object ${idx + 1}"/>
+      <div class="obj-card-body">
+        <span class="obj-index">CARD #${String(idx + 1).padStart(2, '0')}</span>
+        <span class="obj-type">${escHtml(obj.type)}</span>
+        <button class="retrieve-btn" data-idx="${idx}">Identify card →</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  grid.querySelectorAll('.retrieve-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedObjIdx = +btn.dataset.idx;
+      openCropStage();
+    });
+  });
+}
+
+document.getElementById('back-to-upload').addEventListener('click', () => {
+  fileInput.value = '';
+  selectedFile    = null;
+  detectBtn.disabled = true;
+  document.getElementById('preview-wrap').style.display = 'none';
+  goTo('upload');
+});
+
+// page 3: crop
+function openCropStage() {
+  const obj = detectedObjs[selectedObjIdx];
+
+  document.getElementById('crop-type-badge').textContent = obj.type;
+
+  const cropImg = document.getElementById('crop-img');
+  cropImg.src   = 'data:image/png;base64,' + obj.image_b64;
+
+  if (cropperInst) { cropperInst.destroy(); cropperInst = null; }
+
+  cropImg.onload = () => {
+    cropperInst = new Cropper(cropImg, {
+      viewMode:     1,
+      autoCropArea: 0.85,
+      movable:      true,
+      zoomable:     true,
+      scalable:     false,
+      responsive:   true,
+      background:   false,
+    });
+  };
+
+  goTo('crop');
+  hideError('crop-error');
+}
+
+document.getElementById('reset-crop-btn').addEventListener('click', () => {
+  if (cropperInst) cropperInst.reset();
+});
+
+document.getElementById('back-to-choose').addEventListener('click', () => {
+  goTo('choose');
+});
+
+document.getElementById('confirm-crop-btn').addEventListener('click', async () => {
+  if (!cropperInst) return;
+
+  const confirmBtn = document.getElementById('confirm-crop-btn');
+  setLoading(confirmBtn, true, 'Retrieving…');
+  hideError('crop-error');
+
+  try {
+    const canvas  = cropperInst.getCroppedCanvas({ maxWidth: 1024, maxHeight: 1024 });
+    const b64     = canvas.toDataURL('image/png');
+    const objType = detectedObjs[selectedObjIdx].type;
+
+    const res  = await fetch('/retrieve', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ image_b64: b64, type: objType }),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Retrieval failed');
+
+    renderResults(data, objType);
+    goTo('results');
+  } catch (err) {
+    showError('crop-error', err.message);
+  } finally {
+    setLoading(confirmBtn, false);
+  }
+});
+
+
+// page 4: results
+function renderResults(data, objType) {
+  document.getElementById('result-type-badge').textContent = objType;
+
+  const tbody      = document.getElementById('candidates-tbody');
+  tbody.innerHTML  = '';
+  const rankClasses = ['r1', 'r2', 'r3', '', ''];
+
+  data.candidates.forEach((c, i) => {
+    const pct = Math.round(c.score * 100);
+    const tr  = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="rank-badge ${rankClasses[i]}">${i + 1}</span></td>
+      <td style="font-family:var(--mono);font-weight:500">${escHtml(c.name)}</td>
+      <td><span class="obj-type">${escHtml(c.type)}</span></td>
+      <td>
+        <div class="score-bar-wrap">
+          <div class="score-bar-bg">
+            <div class="score-bar-fill" style="width:${pct}%"></div>
+          </div>
+          <span class="score-val">${c.score.toFixed(3)}</span>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('result-plot').src = 'data:image/png;base64,' + data.plot_b64;
+}
+
+document.getElementById('go-upload-btn').addEventListener('click', () => {
+  selectedFile   = null;
+  detectedObjs   = [];
+  selectedObjIdx = null;
+  fileInput.value = '';
+  detectBtn.disabled = true;
+  document.getElementById('preview-wrap').style.display  = 'none';
+  document.getElementById('objects-grid').innerHTML      = '';
+  goTo('upload');
+});
+
+document.getElementById('go-choose-btn').addEventListener('click', () => {
+  goTo('choose');
+});
+</script>

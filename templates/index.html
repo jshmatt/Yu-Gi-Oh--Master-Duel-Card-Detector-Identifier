@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block styles %}
+{# Stage-specific CSS is kept in each partial's own <style> block,      #}
+{# which Jinja inlines here via the include calls below. Any styles that  #}
+{# must load before paint can alternatively be placed in base.html.       #}
+{% endblock %}
+
+{% block content %}
+  {% include "partials/_stage_upload.html" %}
+  {% include "partials/_stage_choose.html" %}
+  {% include "partials/_stage_crop.html"   %}
+  {% include "partials/_stage_results.html" %}
+{% endblock %}
+
+{% block scripts %}
+  {% include "partials/_scripts.html" %}
+{% endblock %}

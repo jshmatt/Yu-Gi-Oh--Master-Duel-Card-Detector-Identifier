@@ -1,0 +1,83 @@
+<!--stage 4: results-->
+
+<style>
+  .candidates-table {
+    width: 100%; border-collapse: collapse; font-size: .84rem;
+  }
+  .candidates-table thead th {
+    font-family: var(--mono); font-size: .65rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-dim);
+    padding: 8px 14px; text-align: left;
+    border-bottom: 1.5px solid var(--border);
+  }
+  .candidates-table tbody tr { border-bottom: 1px solid var(--border); }
+  .candidates-table td { padding: 11px 14px; }
+
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%;
+    font-family: var(--mono); font-size: .72rem; font-weight: 500;
+    background: var(--surface2); color: var(--ink-dim);
+  }
+  .rank-badge.r1 { background: #fef9c3; color: #854d0e; }
+  .rank-badge.r2 { background: #f1f5f9; color: #475569; }
+  .rank-badge.r3 { background: #fef3c7; color: #92400e; }
+
+  .score-bar-wrap { display: flex; align-items: center; gap: 10px; }
+  .score-bar-bg {
+    flex: 1; height: 6px; background: var(--surface2);
+    border-radius: 3px; overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent2), var(--green));
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+  }
+  .score-val {
+    font-family: var(--mono); font-size: .75rem;
+    color: var(--ink-dim); width: 42px; text-align: right;
+  }
+
+  #result-plot {
+    width: 100%; border-radius: 4px;
+    border: 1px solid var(--border);
+    display: block; margin-top: 4px;
+  }
+
+  .nav-row { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+</style>
+
+<div class="stage" id="stage-results">
+  <div class="card">
+    <div class="card-label">Top 5 Card Results</div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+      <span style="font-family:var(--mono);font-size:.72rem;color:var(--ink-dim);">
+        Card type:
+      </span>
+      <span class="obj-type" id="result-type-badge"></span>
+    </div>
+
+    <table class="candidates-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Similarity</th>
+        </tr>
+      </thead>
+      <tbody id="candidates-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Top 5 Cards Visualized</div>
+    <img id="result-plot" src="" alt="Comparison plot"/>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-primary" id="go-upload-btn">↑ Upload another deck</button>
+    <button class="btn btn-blue"    id="go-choose-btn">← Select another card</button>
+  </div>
+</div>

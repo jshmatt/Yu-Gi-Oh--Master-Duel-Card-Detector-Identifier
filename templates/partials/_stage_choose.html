@@ -1,0 +1,62 @@
+<!--stage 2: select card-->
+
+<style>
+  .objects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 4px;
+  }
+  .obj-card {
+    border: 1.5px solid var(--border);
+    border-radius: var(--r);
+    overflow: hidden;
+    background: var(--surface2);
+    transition: var(--ease);
+    display: flex; flex-direction: column;
+  }
+  .obj-card:hover {
+    border-color: var(--accent2);
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  }
+  .obj-card img {
+    width: 100%; aspect-ratio: 1; object-fit: cover; display: block;
+  }
+  .obj-card-body {
+    padding: 10px 12px 12px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .obj-type {
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .08em;
+    text-transform: uppercase;
+    background: var(--accent2-lt); color: var(--accent2);
+    padding: 2px 7px; border-radius: 3px;
+    display: inline-block; width: fit-content;
+  }
+  .obj-index {
+    font-family: var(--mono); font-size: .65rem; color: var(--ink-dim);
+  }
+  .retrieve-btn {
+    width: 100%; padding: 7px 0;
+    background: var(--ink); color: var(--bg);
+    border: none; border-radius: 4px;
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .04em;
+    cursor: pointer; transition: var(--ease);
+  }
+  .retrieve-btn:hover { background: var(--accent); }
+</style>
+
+<div class="stage" id="stage-choose">
+  <div class="card">
+    <div class="card-label">Detected Cards</div>
+    <p style="color:var(--ink-dim);font-size:.85rem;margin-bottom:20px;">
+      Select a card to identify.
+    </p>
+    <div class="objects-grid" id="objects-grid"></div>
+    <div class="error-box" id="choose-error"></div>
+  </div>
+
+  <button class="btn btn-ghost" id="back-to-upload">
+    ← Upload different image
+  </button>
+</div>

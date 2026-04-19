@@ -1,0 +1,7 @@
+.venv/
+**/__pycache__/
+**/card_data/
+**dinov2s
+**weights
+.env
+CardDetector2.py

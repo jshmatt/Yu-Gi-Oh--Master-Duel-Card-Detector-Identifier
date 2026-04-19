@@ -1,0 +1,52 @@
+<!--stage 3: crop card-->
+
+<style>
+  #crop-container {
+    position: relative; height: 65vh;
+    background: #0c1117; border-radius: 4px; overflow: hidden;
+  }
+  #crop-img { display: block; max-width: 100%; height: 100%%; }
+
+  .crop-controls {
+    display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;
+  }
+  .crop-hint {
+    font-family: var(--mono); font-size: .72rem;
+    color: var(--ink-dim); margin-top: 10px; line-height: 1.7;
+  }
+  .crop-hint strong { color: var(--ink); }
+</style>
+
+<div class="stage" id="stage-crop">
+  <div class="card">
+    <div class="card-label">Crop ONLY the Artwork</div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <span style="font-family:var(--mono);font-size:.72rem;color:var(--ink-dim);">
+        Selected type:
+      </span>
+      <span class="obj-type" id="crop-type-badge"></span>
+    </div>
+
+    <div id="crop-container">
+      <img id="crop-img" src="" alt="Crop target"/>
+    </div>
+
+    <p class="crop-hint">
+      <strong>Drag</strong> to move the selection &nbsp;·&nbsp;
+      <strong>Resize</strong> by dragging corners &nbsp;·&nbsp;
+      <strong>Scroll</strong> to zoom in/out
+    </p>
+
+    <div class="crop-controls">
+      <button class="btn btn-accent" id="confirm-crop-btn">
+        ✓ Confirm crop &amp; identify card
+      </button>
+      <button class="btn btn-ghost" id="reset-crop-btn">↺ Reset crop</button>
+    </div>
+
+    <div class="error-box" id="crop-error"></div>
+  </div>
+
+  <button class="btn btn-ghost" id="back-to-choose">← Choose different card</button>
+</div>
