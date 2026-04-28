@@ -10,6 +10,9 @@ from pathlib import Path
 dir_path = str(Path(__file__).resolve().parent)
 
 class DetectCards:
+  """Detect cards.
+  Returns an instance of the detector.
+  """
   def __init__(self, 
                pickle_result : bool = False, # save results in pickle
                save_each_card : bool = False, # save image file for each detected card
@@ -151,6 +154,14 @@ class DetectCards:
     return fig
     
   def predict(self, img):
+    """Main inference method.
+
+    Args:
+        img (Image | array | str): screenshot of the deck editor. Can be in Image, array, or str that indicates the path to the image.
+
+    Returns:
+         list[dict]: list of the detected cards and card type (monster, spell, link, etc.). Each entry is a dictionary of form {"image": array, "type": str}
+    """
     result = self.detect_cards(img)
 
     self.boxes_plot = self.deck_with_boxes(result)

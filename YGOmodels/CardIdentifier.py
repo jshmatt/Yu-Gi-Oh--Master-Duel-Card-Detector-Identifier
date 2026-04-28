@@ -87,6 +87,8 @@ class Dinov2withLORA(nn.Module):
     return self.backbone(x)
   
 class IdentifyCard:
+  """Identify a card from the artwork.
+  """
   def __init__(self,
                faiss_path : str = '/card_data', # location of the faiss features
                device : str = 'cuda'
@@ -188,6 +190,14 @@ class IdentifyCard:
     return card_names
 
   def single_card_identify(self, artworks_types_list : list):
+    """Main identifier method.
+
+    Args:
+        artworks_types_list (list[array, str]): list containing the array representation of the artwork and the card type (monster, spell, link etc.)
+
+    Returns:
+        dict["canidates": list, "plot_b64": str, "plot": fig]: "candidates" contain the list of the names of the top five candidates, "plot_b64" is string representation of the figure of the results, and "plot" is the image representation of the figure. 
+    """
     art_array, type = artworks_types_list
     
     art_array = cv.resize(art_array, (128,128), interpolation=cv.INTER_CUBIC) # imporves score
