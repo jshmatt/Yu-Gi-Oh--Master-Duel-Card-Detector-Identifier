@@ -51,13 +51,23 @@ YGOmodels/
 ```
 # How to Use
 1. Run the [main Python script](app.py). 
-2. Go to [localhost](http://localhost/8080). \
-   ![upload](https://drive.google.com/uc?export=view&id=1mvGP2dpKrbsO0AcpTYe4ffhybia57klz) 
-3. Upload a screenshot of the deck editor then run the detector. The screenshot should only contain the area bounded by the red box as shown below.\
-      ![deckbox](https://drive.google.com/uc?export=view&id=1OrUP7QSzLdL67VpKrl91iFxnulPX2vyX) 
-4. Select a card to identify.
-   ![select](https://drive.google.com/uc?export=view&id=14YftxRPCiWcN9ntKAyVjlr478Z02LQGh) 
-5. Crop only the artwork of the card then run the identifier. Refer to the red box in the image below. \
-   ![crop](https://drive.google.com/uc?export=view&id=1DQxp77MDqI9I8j6M3-nY9xeUyQDz5gAH) 
-6. See results. \
-   ![results](https://drive.google.com/uc?export=view&id=1xDh0AZZaPNVGPdbCWporp44Qf3wXMcfV)
+2. Go to [localhost](http://localhost/8080).
+   <div class="container" text-align:"center;">
+      <img src="https://drive.google.com/uc?export=view&id=1mvGP2dpKrbsO0AcpTYe4ffhybia57klz" style="width: 70%;" alt="upload">
+   </div>
+4. Upload a screenshot of the deck editor then run the detector. The screenshot should only contain the area bounded by the red box as shown below.
+   <div class="container" text-align:"center;">
+      <img src="https://drive.google.com/uc?export=view&id=1OrUP7QSzLdL67VpKrl91iFxnulPX2vyX" style="width: 50%;" alt="deckbox">
+   </div>
+6. Select a card to identify.
+   <div class="container" text-align:"center;">
+      <img src="https://drive.google.com/uc?export=view&id=14YftxRPCiWcN9ntKAyVjlr478Z02LQGh" style="width: 50%;" alt="select">
+   </div>
+8. Crop only the artwork of the card then run the identifier. Refer to the red box in the image below.
+   <div class="container" text-align:"center;">
+      <img src="https://drive.google.com/uc?export=view&id=1DQxp77MDqI9I8j6M3-nY9xeUyQDz5gAH" style="width: 50%;" alt="crop">
+   </div>
+10. See results.
+    <div class="container" text-align:"center;">
+      <img src="https://drive.google.com/uc?export=view&id=1xDh0AZZaPNVGPdbCWporp44Qf3wXMcfV" style="width: 50%;" alt="results">
+   </div>
